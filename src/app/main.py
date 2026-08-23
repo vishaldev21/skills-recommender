@@ -3,5 +3,4 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-
-mount_chainlit(app=app, target="src/ui.py", path="/chainlit")
+mount_chainlit(app=app, target="src/ui.py", path="/")

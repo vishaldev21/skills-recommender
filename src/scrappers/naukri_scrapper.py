@@ -121,7 +121,7 @@ async def fetch_jobs(
         )
 
 
-async def naukri_job_scrapper() -> None:
+async def naukri_job_scrapper(search_filters: dict) -> None:
     load_dotenv()
     try:
         api_key = os.getenv("BRIGHTDATA_API_TOKEN")
@@ -132,10 +132,10 @@ async def naukri_job_scrapper() -> None:
             raise ValueError("NAUKRI_COLLECTOR_ID environment variable is not set.")
 
         payload = {
-            "location": "bangalore",
-            "keyword": "full stack developer",
-            "experience_level": "",
-            "job_type": "",
+            "location": search_filters["location"],
+            "keyword": search_filters["keyword"],
+            "experience_level": search_filters["experience_level"],
+            "job_type": search_filters["job_type"],
             "max_results": 2,
         }
 
@@ -169,8 +169,8 @@ def naukri_formatter(jobs):
     return final_jobs
 
 
-async def naukri_main():
-    jobs = await naukri_job_scrapper()
+async def naukri_main(search_filters: dict):
+    jobs = await naukri_job_scrapper(search_filters)
     if jobs is not None:
         print(jobs)
         formatted_jobs = naukri_formatter(jobs)

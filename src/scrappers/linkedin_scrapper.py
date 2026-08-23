@@ -3,6 +3,7 @@ import os
 from typing import Any
 
 import httpx
+from dotenv import load_dotenv
 
 
 async def trigger_snapshot(
@@ -10,7 +11,7 @@ async def trigger_snapshot(
     dataset_id: str,
     client: httpx.AsyncClient,
     headers: dict[str, str],
-    payload: list[dict[str, str]],
+    payload: list[dict[str, Any]],
 ) -> str:
 
     params = {
@@ -106,7 +107,7 @@ async def fetch_jobs(
     base_url: str,
     dataset_id: str,
     api_key: str,
-    payload: list[dict[str, str]],
+    payload: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """Run the complete Bright Data job collection workflow."""
     headers = {
@@ -131,21 +132,25 @@ async def fetch_jobs(
         )
 
 
-async def linkedin_main():
+async def linkedin_main(search_filters: dict[str, Any]):
+    load_dotenv()
     base_url = "https://api.brightdata.com/datasets/v3"
     payload = [
         {
-            "location": "bangalore",
-            "keyword": "Full stack developer",
-            "experience_level": "",
-            "job_type": "",
+            "location": search_filters["location"],
+            "keyword": search_filters["keyword"],
+            "experience_level": search_filters["experience_level"],
+            "job_type": search_filters["job_type"],
         }
     ]
-    dataset_id = os.getenv("DATASET_LINKEDIN") or ""
     try:
+        print("Starting LinkedIn job scraper...")
         api_key = os.getenv("BRIGHTDATA_API_TOKEN")
+        dataset_id = os.getenv("DATASET_LINKEDIN")
         if not api_key:
             raise ValueError("BRIGHTDATA_API_TOKEN environment variable is not set.")
+        if not dataset_id:
+            raise ValueError("DATASET_LINKEDIN environment variable is not set.")
         jobs = await fetch_jobs(base_url, dataset_id, api_key, payload)
         return jobs
 

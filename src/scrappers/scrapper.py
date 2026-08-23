@@ -13,10 +13,10 @@ from .naukri_scrapper import naukri_main
 from .skill_extactor import skills_extractor, skills_setter
 
 
-async def scrapper(pool: Pool):
+async def scrapper(pool: Pool, search_filters: dict):
     naukri_jobs, jobs = await asyncio.gather(
-        naukri_main(),
-        linkedin_main(),
+        naukri_main(search_filters),
+        linkedin_main(search_filters),
     )
 
     if naukri_jobs is not None:
@@ -27,7 +27,6 @@ async def scrapper(pool: Pool):
         for el in formatted_jobs:
             print(el["id"])
         skills = await skills_extractor(formatted_jobs)
-        print(skills)
         linkedin_jobs = skills_setter(formatted_jobs, skills)
         formatted_linked_jobs = linkedin_jobs_list_converter(linkedin_jobs)
         await insert_many(pool, formatted_linked_jobs)
